@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diana Dowek: El Arte en la Encrucijada</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-red: #c62828;
+            --accent-green: #2e7d32;
+            --accent-gold: #f57f17;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--accent-red);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+
+        /* Portada / Cuadro */
+        .artwork-card {
+            background-color: #000;
+            border: 2px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .artwork-img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #666;
+            border-radius: 4px;
+        }
+
+        .artwork-caption {
+            font-size: 0.85rem;
+            color: #ccc;
+            margin-top: 10px;
+            border-top: 1px solid #333;
+            padding-top: 8px;
+        }
+
+        /* Controles de Sonido */
+        .audio-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2a2a2a;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-red);
+        }
+
+        .btn-audio {
+            background-color: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-audio:hover {
+            opacity: 0.9;
+        }
+
+        /* Área del Juego */
+        .game-step {
+            display: none;
+        }
+
+        .game-step.active {
+            display: block;
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            width: 100%;
+            background-color: #2b2b2b;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover {
+            background-color: #3d3d3d;
+            border-color: #777;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #333;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-red);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Pantalla Final */
+        .result-screen {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .censura {
+            color: #ff5252;
+        }
+
+        .exposicion {
+            color: #66bb6a;
+        }
+
+        .result-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 20px;
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
+
+        .btn-restart {
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-restart:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Diana Dowek: El Arte en la Encrucijada</h1>
+        <div class="subtitle">Estrategias visuales, censura y resistencia en la Argentina de los años 70</div>
+    </header>
+
+    <!-- Portada con Obra -->
+    <div class="artwork-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Diana_Dowek_-_Lo_que_vendr%C3%A1_%281973%29.jpg/800px-Diana_Dowek_-_Lo_que_vendr%C3%A1_%281973%29.jpg" 
+             alt="Lo que vendrá (1973) - Diana Dowek" 
+             class="artwork-img"
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/600x350/222222/ffffff?text=Diana+Dowek+-+Lo+que+vendr%C3%A1+(1973)';">
+        <div class="artwork-caption">
+            <strong>Obra de portada:</strong> <em>Lo que vendrá</em> (1973). Acrílico sobre tela. Diana Dowek.<br>
+            <small>La mirada fragmentada y la inminencia de la violencia sociopolítica.</small>
+        </div>
+    </div>
+
+    <!-- Sonido de Persecución -->
+    <div class="audio-controls">
+        <span>🔊 <strong>Ambiente:</strong> Sirena y persecución policial</span>
+        <button class="btn-audio" id="toggleAudioBtn" onclick="toggleSiren()">Activar Sonido</button>
+    </div>
+
+    <!-- Barra de Progreso -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- JUEGO: PASO A PASO -->
+    <div id="gameContent">
+
+        <!-- Inicio -->
+        <div class="game-step active" id="step-0">
+            <h3>Bienvenida/o a la decisión interactiva</h3>
+            <p>Es mediados de la década de 1970 en Buenos Aires. Es una época atravesada por tensiones políticas, la censura creciente y la emergencia de movimientos como la Unión Feminista Argentina (UFA).</p>
+            <p>Asumís el rol de la artista <strong>Diana Dowek</strong>. A través de 6 decisiones clave deberás definir qué lenguaje visual y qué estrategia utilizar para producir y poner en circulación tu obra.</p>
+            <p style="text-align: center; margin-top: 25px;">
+                <button class="option-btn" style="text-align: center; font-weight: bold;" onclick="nextStep(1)">Comenzar el Juego</button>
+            </p>
+        </div>
+
+        <!-- Pregunta 1 -->
+        <div class="game-step" id="step-1">
+            <div class="question-title">1. La materia prima y la fotografía de prensa</div>
+            <p>Encontrás en un diario una fotografía impactante sobre la represión en las calles. ¿Cómo la incorporás a tu proceso de trabajo?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> Proyectás solo un detalle fragmentado del recuadre: un contorno de vehículo, un espejo o un alambre, dejando la agresión fuera de campo.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Reproducís la fotografía completa con pinceladas explícitas y realistas para que no quede duda del enfrentamiento directo.</button>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="game-step" id="step-2">
+            <div class="question-title">2. El debate de género y la UFA</div>
+            <p>Participás de los encuentros de la Unión Feminista Argentina (UFA), cuestionando las jerarquías que benefician la consagración masculina. ¿Cómo trasladas esta búsqueda a la materia artística?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> Incorporás materiales no convencionales (mallas sintéticas, plásticos, espejos) desafiando la pintura tradicional y cuestionando la mirada pasiva sobre la mujer.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Pintas una pancarta monumental con consignas feministas textuales para presentarla en la entrada de los salones tradicionales.</button>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="game-step" id="step-3">
+            <div class="question-title">3. El espacio y el clima de amenaza</div>
+            <p>Querés abordar el clima de acoso y vigilancia política sin que el aparato censurar desmonte inmediatamente tu producción. ¿Qué recurso compositivo utilizás?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> Pintás un espejo retrovisor o un enrejado; el observador se siente perseguido porque la amenaza se sugiere en el reflejo.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Dibujás directamente los rostros de los represores y la violencia explícita en el centro de la escena.</button>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="game-step" id="step-4">
+            <div class="question-title">4. La relación con la cultura de masas</div>
+            <p>Los medios masivos construyen relatos fragmentados de la realidad. ¿Cómo dialoga tu obra con la información circulante?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> Desmontás recortes de prensa y publicidad en fotomontajes para evidenciar cómo los medios manipulan o tapan la violencia.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Enviás una carta abierta a los periódicos denunciando la censura institucional antes de colgar las obras.</button>
+        </div>
+
+        <!-- Pregunta 5 -->
+        <div class="game-step" id="step-5">
+            <div class="question-title">5. Soporte y presentación</div>
+            <p>Se aproxima la entrega para el Gran Premio de Artes Visuales. ¿De qué manera entregás la pieza completa?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> Tensa una malla plástica transparente sobre la pintura; el público debe esforzarse activamente por enfocar lo que está detrás.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Entregás el lienzo acompañado por un manifiesto de denuncia explícita pegado en la parte frontal.</button>
+        </div>
+
+        <!-- Pregunta 6 -->
+        <div class="game-step" id="step-6">
+            <div class="question-title">6. Espacio de prueba e itinerario</div>
+            <p>Ante el riesgo de clausura gubernamental, ¿dónde realizás la primera exhibición de la propuesta?</p>
+            <button class="option-btn" onclick="makeChoice('A')"><strong>[A]</strong> En una vista previa a puertas cerradas con colegas de vanguardia, críticas de arte y compañeras de la UFA para evaluar múltiples lecturas.</button>
+            <button class="option-btn" onclick="makeChoice('B')"><strong>[B]</strong> Convocás a la prensa masiva a una inauguración relámpago en la puerta de la galería oficial sin autorización previa.</button>
+        </div>
+
+        <!-- Resultado Final -->
+        <div class="game-step" id="step-7">
+            <div class="result-screen">
+                <div id="resultContent"></div>
+                <button class="btn-restart" onclick="resetGame()">Volver a Jugar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let scoreA = 0;
+    let scoreB = 0;
+    let currentStep = 0;
+    const totalQuestions = 6;
+
+    // Generador de Sirena sintética usando Web Audio API
+    let audioCtx = null;
+    let oscillator = null;
+    let gainNode = null;
+    let isPlayingAudio = false;
+    let sirenInterval = null;
+
+    function toggleSiren() {
+        const btn = document.getElementById('toggleAudioBtn');
+        if (!isPlayingAudio) {
+            startSiren();
+            btn.innerText = "Pausar Sonido";
+            isPlayingAudio = true;
+        } else {
+            stopSiren();
+            btn.innerText = "Activar Sonido";
+            isPlayingAudio = false;
+        }
+    }
+
+    function startSiren() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+
+        oscillator.type = 'sawtooth';
+        gainNode.gain.value = 0.08; // Volumen moderado
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+
+        let high = false;
+        sirenInterval = setInterval(() => {
+            if (oscillator) {
+                oscillator.frequency.setValueAtTime(high ? 750 : 450, audioCtx.currentTime);
+                high = !high;
+            }
+        }, 500);
+    }
+
+    function stopSiren() {
+        if (sirenInterval) clearInterval(sirenInterval);
+        if (oscillator) {
+            oscillator.stop();
+            oscillator.disconnect();
+        }
+        if (audioCtx) audioCtx.close();
+        oscillator = null;
+        audioCtx = null;
+    }
+
+    function updateProgress() {
+        const fill = document.getElementById('progressFill');
+        if (currentStep > 0 && currentStep <= totalQuestions) {
+            const percentage = (currentStep / totalQuestions) * 100;
+            fill.style.width = percentage + '%';
+        } else if (currentStep === 0) {
+            fill.style.width = '0%';
+        } else {
+            fill.style.width = '100%';
+        }
+    }
+
+    function nextStep(step) {
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        currentStep = step;
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        updateProgress();
+    }
+
+    function makeChoice(choice) {
+        if (choice === 'A') scoreA++;
+        if (choice === 'B') scoreB++;
+
+        if (currentStep < totalQuestions) {
+            nextStep(currentStep + 1);
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        currentStep = 7;
+        document.getElementById(`step-7`).classList.add('active');
+        updateProgress();
+
+        const resultContent = document.getElementById('resultContent');
+
+        if (scoreA >= scoreB) {
+            // DESENLACE A: Exposición / Resistencia
+            resultContent.innerHTML = `
+                <div class="result-title exposicion">🟢 DESENLACE: Muestra Lograda (La Metáfora Resistente)</div>
+                <div class="result-desc">
+                    <p><strong>Resultado:</strong> Los censores estatales e inspectores recorren la sala de la exposición. Se detienen frente a tus obras, observan la serie de los <em>Retrovisores</em> y las mallas plásticas.</p>
+                    <p>Buscan desesperadamente un rostro prohibido, una pancarta o un texto explícito que justifique la clausura, pero solo encuentran un lenguaje visual poético, fragmentos, reflejos y preguntas.</p>
+                    <p><strong>Impacto:</strong> Sin argumentos legales para confiscar las obras, la muestra permanece abierta. El público se acerca, se contempla en los reflejos y entiende perfectamente el mensaje de violencia y encierro. Lograste hacer circular la obra sin ser silenciada.</p>
+                </div>
+            `;
+        } else {
+            // DESENLACE B: Censura
+            resultContent.innerHTML = `
+                <div class="result-title censura">🔴 DESENLACE: Muestra Clausurada (El Choque Directo)</div>
+                <div class="result-desc">
+                    <p><strong>Resultado:</strong> Horas antes de la apertura pública, las fuerzas de seguridad irrumpen en la galería alertadas por las denuncias explícitas y la confrontación directa de las piezas.</p>
+                    <p>Las autoridades descuelgan los lienzos con violencia, confiscan los manifiestos impresos y colocan fajas de clausura en la puerta del edificio.</p>
+                    <p><strong>Impacto:</strong> Tu obra queda incautada en depósitos oficiales y tu nombre es incorporado a la lista de artistas proscriptas. El canal de comunicación con el público se ha roto, perdiendo la oportunidad de entablar un diálogo con la comunidad.</p>
+                </div>
+            `;
+        }
+    }
+
+    function resetGame() {
+        scoreA = 0;
+        scoreB = 0;
+        nextStep(0);
+    }
+</script>
+
+</body>
+</html>

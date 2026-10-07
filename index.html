@@ -31,7 +31,6 @@
             transition: background-color 0.4s ease;
         }
 
-        /* Animación de luces de policía al perder */
         body.police-lights {
             animation: policeSiren 0.8s infinite alternate;
         }
@@ -73,7 +72,6 @@
             font-style: italic;
         }
 
-        /* Marco de la pintura con capa de censura */
         .artwork-card {
             background-color: #0c0a09;
             border: 8px solid #1c1917;
@@ -101,7 +99,6 @@
             display: block;
         }
 
-        /* Capas progresivas de censura */
         .censorship-layer {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -153,7 +150,6 @@
             text-align: left;
         }
 
-        /* Audio y Controles */
         .audio-controls {
             display: flex;
             justify-content: space-between;
@@ -184,7 +180,6 @@
             background-color: #f59e0b;
         }
 
-        /* Área de Opciones */
         .game-step { display: none; }
         .game-step.active { display: block; }
 
@@ -233,7 +228,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Pantalla Final */
         .result-screen {
             text-align: center;
             padding: 10px;
@@ -307,21 +301,17 @@
         <div class="subtitle">Estrategias visuales, censura y resistencia en la Argentina de los años 70</div>
     </header>
 
-    <!-- Marco de la Pintura Garantizada (SVG) -->
     <div class="artwork-card">
         <div class="artwork-wrapper">
             <svg class="artwork-svg" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
-                <!-- Fondo arbolado verde noche -->
                 <rect width="600" height="400" fill="#142314"/>
                 <path d="M0 0 L600 400 M600 0 L0 400" stroke="#0a140a" stroke-width="30" opacity="0.4"/>
                 <circle cx="300" cy="200" r="250" fill="#1c331c" opacity="0.6"/>
                 
-                <!-- Espejo retrovisor cromado -->
                 <g>
                     <path d="M 120 90 Q 300 60 480 120 Q 460 220 140 180 Z" fill="#1e293b" stroke="#94a3b8" stroke-width="6"/>
                     <path d="M 128 96 Q 300 68 472 124 Q 454 214 146 174 Z" fill="#334155"/>
                     
-                    <!-- Auto persecutor dentro del espejo -->
                     <path d="M 200 150 L 240 115 L 360 120 L 400 155 Z" fill="#090d16"/>
                     <path d="M 245 120 L 265 135 L 335 135 L 355 122 Z" fill="#64748b"/>
                     <circle cx="285" cy="128" r="8" fill="#000"/>
@@ -332,7 +322,6 @@
                 <path d="M 170 380 L 430 365" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
             </svg>
 
-            <!-- Capas de Censura Progresiva -->
             <div class="censorship-layer" id="censorshipLayer"></div>
             <div class="stamp-censored" id="stampCensored">CENSURADO</div>
         </div>
@@ -343,18 +332,16 @@
         </div>
     </div>
 
-    <!-- Sonido de Suspenso -->
+    <!-- Barra de Sonido de Misterio -->
     <div class="audio-controls">
-        <span>🎬 <strong>Ambiente:</strong> Sonido de Suspenso y Tensión</span>
-        <button class="btn-audio" id="toggleAudioBtn" onclick="toggleSuspenseSound()">Activar Suspenso</button>
+        <span>🕵️‍♂️ <strong>Música:</strong> Misterio e Intriga</span>
+        <button class="btn-audio" id="toggleAudioBtn" onclick="toggleMysteryMusic()">Activar Música</button>
     </div>
 
-    <!-- Barra de Progreso -->
     <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
     </div>
 
-    <!-- PASOS DEL JUEGO ORIGINAL -->
     <div id="gameContent">
 
         <!-- Inicio -->
@@ -442,61 +429,99 @@
     let currentStep = 0;
     const totalQuestions = 6;
 
-    // Web Audio API para música de suspenso
+    // MOTOR DE MÚSICA DE MISTERIO (Sintetizador Web Audio API)
     let audioCtx = null;
-    let osc1 = null, osc2 = null, gainNode = null;
+    let masterGain = null;
     let isPlayingAudio = false;
-    let pulseInterval = null;
+    let musicInterval = null;
 
-    function toggleSuspenseSound() {
+    // Escala menor armónica/misteriosa en frecuencias (Hz)
+    const mysteryNotes = [
+        110.00, // A2 (Bajo)
+        130.81, // C3
+        164.81, // E3
+        174.61, // F3
+        207.65, // G#3 (Nota de tensión de misterio)
+        220.00, // A3
+        261.63, // C4
+        329.63  // E4
+    ];
+
+    function toggleMysteryMusic() {
         const btn = document.getElementById('toggleAudioBtn');
         if (!isPlayingAudio) {
-            startSuspenseSound();
-            btn.innerText = "Pausar Suspenso";
+            startMysteryMusic();
+            btn.innerText = "Pausar Música";
             isPlayingAudio = true;
         } else {
-            stopSuspenseSound();
-            btn.innerText = "Activar Suspenso";
+            stopMysteryMusic();
+            btn.innerText = "Activar Música";
             isPlayingAudio = false;
         }
     }
 
-    function startSuspenseSound() {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        osc1 = audioCtx.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(55, audioCtx.currentTime);
+    function playMysteryNote(freq, duration, type = 'sine', volume = 0.05) {
+        if (!audioCtx || audioCtx.state !== 'running') return;
 
-        osc2 = audioCtx.createOscillator();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(58.5, audioCtx.currentTime); 
+        const osc = audioCtx.createOscillator();
+        const noteGain = audioCtx.createGain();
 
-        gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-        osc1.connect(gainNode);
-        osc2.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        // Envolvente de sonido suave (suave entrada y desvanecimiento)
+        noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        noteGain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.3);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
 
-        osc1.start();
-        osc2.start();
+        osc.connect(noteGain);
+        noteGain.connect(masterGain);
 
-        let tensionHigh = false;
-        pulseInterval = setInterval(() => {
-            if (gainNode && audioCtx) {
-                gainNode.gain.linearRampToValueAtTime(tensionHigh ? 0.08 : 0.03, audioCtx.currentTime + 0.8);
-                tensionHigh = !tensionHigh;
-            }
-        }, 1200);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
     }
 
-    function stopSuspenseSound() {
-        if (pulseInterval) clearInterval(pulseInterval);
-        if (osc1) { osc1.stop(); osc1.disconnect(); }
-        if (osc2) { osc2.stop(); osc2.disconnect(); }
+    function startMysteryMusic() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+
+        // Efecto de eco ambiental
+        const delay = audioCtx.createDelay();
+        delay.delayTime.value = 0.4;
+        const feedback = audioCtx.createGain();
+        feedback.gain.value = 0.3;
+
+        delay.connect(feedback);
+        feedback.connect(delay);
+        masterGain.connect(delay);
+        delay.connect(audioCtx.destination);
+        masterGain.connect(audioCtx.destination);
+
+        let step = 0;
+        musicInterval = setInterval(() => {
+            if (!audioCtx) return;
+
+            // Bajo misterioso continuo cada 4 pulsos
+            if (step % 4 === 0) {
+                playMysteryNote(55.00, 3.5, 'triangle', 0.08); // A1 grave
+            }
+
+            // Arpegio de notas aleatorias de la escala de misterio
+            if (Math.random() > 0.2) {
+                const randomNote = mysteryNotes[Math.floor(Math.random() * mysteryNotes.length)];
+                playMysteryNote(randomNote, 1.8, 'sine', 0.04);
+            }
+
+            step++;
+        }, 600);
+    }
+
+    function stopMysteryMusic() {
+        if (musicInterval) clearInterval(musicInterval);
         if (audioCtx) audioCtx.close();
-        osc1 = null; osc2 = null; audioCtx = null;
+        audioCtx = null;
+        masterGain = null;
     }
 
     function updateCensorship() {
@@ -567,31 +592,4 @@
                 <div class="result-desc">
                     <p><strong>Resultado:</strong> Los censores e inspectores caminan por la sala. Se detienen detenidamente ante la obra <em>Serie de los retrovisores</em>.</p>
                     <p>Buscan desesperadamente una consigna partidaria o una imagen explícita que argumente la clausura, pero solo observan la composición de un automóvil, un reflejo ambiguo y mallas plásticas. Confundidos y sin bases legales, continúan su marcha.</p>
-                    <p><strong>Impacto:</strong> La obra permanece expuesta. El público se posiciona frente al cuadro y experimenta la inminencia de la persecución a través del reflejo, logrando denunciar el clima sociopolítico sin ser silenciada.</p>
-                </div>
-            `;
-        } else {
-            // Se activan las luces de policía
-            document.body.classList.add('police-lights');
-            resultContent.innerHTML = `
-                <div class="result-title censura">🚨 DESENLACE: Muestra Clausurada (Arresto y Censura Total)</div>
-                <div class="result-desc">
-                    <p><strong>Resultado:</strong> Poco antes de abrir las puertas al público, agentes e inspectores irrumpen en el espacio cultural al ser alertados del contenido explícito de las obras.</p>
-                    <p>Descuelgan las piezas con violencia, incautan los panfletos y colocan fajas de clausura en la puerta de la galería. Fuiste interceptada por desacato al orden público.</p>
-                    <p><strong>Impacto:</strong> La obra fue completamente tapada e incautada. Tu nombre queda marcado en las listas proscriptas, perdiendo la posibilidad de entablar un diálogo directo con la sociedad.</p>
-                </div>
-            `;
-        }
-    }
-
-    function resetGame() {
-        scoreA = 0;
-        scoreB = 0;
-        document.body.classList.remove('police-lights');
-        updateCensorship();
-        nextStep(0);
-    }
-</script>
-
-</body>
-</html>
+                    <p><strong>Impacto:</strong> La obra permanece expuesta. El público se posiciona frente al cuadro y experimenta la inminencia de la persecución a través del reflejo, logrando denunciar el clima sociopol

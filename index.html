@@ -12,8 +12,8 @@
             --card-bg: #24211e;
             --text-color: #e7e5e4;
             --text-muted: #a8a29e;
-            --accent-red: #c62828;
-            --accent-green: #2e7d32;
+            --accent-red: #dc2626;
+            --accent-green: #16a34a;
             --accent-gold: #d97706;
             --border-color: #44403c;
         }
@@ -28,6 +28,17 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            transition: background-color 0.4s ease;
+        }
+
+        /* Animación de luces de policía al perder */
+        body.police-lights {
+            animation: policeSiren 0.8s infinite alternate;
+        }
+
+        @keyframes policeSiren {
+            0% { background-color: #450a0a; }
+            100% { background-color: #1e1b4b; }
         }
 
         .container {
@@ -37,7 +48,8 @@
             border: 2px solid var(--border-color);
             border-radius: 6px;
             padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.85), inset 0 0 60px rgba(0,0,0,0.5);
+            position: relative;
         }
 
         header {
@@ -61,7 +73,7 @@
             font-style: italic;
         }
 
-        /* Portada / Cuadro */
+        /* Marco de la pintura con capa de censura */
         .artwork-card {
             background-color: #0c0a09;
             border: 8px solid #1c1917;
@@ -70,17 +82,66 @@
             text-align: center;
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            position: relative;
         }
 
-        .artwork-img {
-            max-width: 100%;
-            max-height: 400px;
+        .artwork-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-height: 380px;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .artwork-svg {
+            width: 100%;
             height: auto;
-            border: 1px solid #57534e;
-            border-radius: 2px;
-            object-fit: contain;
+            max-height: 380px;
             display: block;
-            margin: 0 auto;
+        }
+
+        /* Capas progresivas de censura */
+        .censorship-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .censorship-layer.level-1 {
+            opacity: 0.45;
+            background: repeating-linear-gradient(45deg, #000, #000 12px, transparent 12px, transparent 24px);
+        }
+
+        .censorship-layer.level-2 {
+            opacity: 0.75;
+            background: #000;
+        }
+
+        .censorship-layer.level-3 {
+            opacity: 0.98;
+            background: #000;
+        }
+
+        .stamp-censored {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-12deg);
+            color: #ef4444;
+            border: 6px solid #ef4444;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            font-size: 2.2rem;
+            padding: 8px 25px;
+            text-transform: uppercase;
+            background-color: rgba(0,0,0,0.9);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            display: none;
+            letter-spacing: 4px;
+            pointer-events: none;
         }
 
         .artwork-caption {
@@ -89,9 +150,10 @@
             margin-top: 10px;
             border-top: 1px solid var(--border-color);
             padding-top: 8px;
+            text-align: left;
         }
 
-        /* Controles de Sonido */
+        /* Audio y Controles */
         .audio-controls {
             display: flex;
             justify-content: space-between;
@@ -122,14 +184,9 @@
             background-color: #f59e0b;
         }
 
-        /* Área del Juego */
-        .game-step {
-            display: none;
-        }
-
-        .game-step.active {
-            display: block;
-        }
+        /* Área de Opciones */
+        .game-step { display: none; }
+        .game-step.active { display: block; }
 
         .question-title {
             font-size: 1.2rem;
@@ -188,13 +245,8 @@
             margin-bottom: 15px;
         }
 
-        .censura {
-            color: #ff5252;
-        }
-
-        .exposicion {
-            color: #66bb6a;
-        }
+        .censura { color: #ff5252; text-shadow: 0 0 8px rgba(255, 82, 82, 0.5); }
+        .exposicion { color: #66bb6a; }
 
         .result-desc {
             font-size: 1rem;
@@ -230,9 +282,7 @@
             margin-bottom: 0;
         }
 
-        .reflection-box li {
-            margin-bottom: 8px;
-        }
+        .reflection-box li { margin-bottom: 8px; }
 
         .btn-restart {
             background-color: var(--accent-gold);
@@ -246,9 +296,7 @@
             font-size: 1rem;
         }
 
-        .btn-restart:hover {
-            background-color: #f59e0b;
-        }
+        .btn-restart:hover { background-color: #f59e0b; }
     </style>
 </head>
 <body>
@@ -259,15 +307,39 @@
         <div class="subtitle">Estrategias visuales, censura y resistencia en la Argentina de los años 70</div>
     </header>
 
-    <!-- Portada con la Obra Solicitada -->
+    <!-- Marco de la Pintura Garantizada (SVG) -->
     <div class="artwork-card">
-        <img src="image_d8d5e1.jpg" 
-             alt="Serie de los Retrovisores - Diana Dowek" 
-             class="artwork-img"
-             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Diana_Dowek_-_Lo_que_vendr%C3%A1_%281973%29.jpg/800px-Diana_Dowek_-_Lo_que_vendr%C3%A1_%281973%29.jpg';">
+        <div class="artwork-wrapper">
+            <svg class="artwork-svg" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                <!-- Fondo arbolado verde noche -->
+                <rect width="600" height="400" fill="#142314"/>
+                <path d="M0 0 L600 400 M600 0 L0 400" stroke="#0a140a" stroke-width="30" opacity="0.4"/>
+                <circle cx="300" cy="200" r="250" fill="#1c331c" opacity="0.6"/>
+                
+                <!-- Espejo retrovisor cromado -->
+                <g>
+                    <path d="M 120 90 Q 300 60 480 120 Q 460 220 140 180 Z" fill="#1e293b" stroke="#94a3b8" stroke-width="6"/>
+                    <path d="M 128 96 Q 300 68 472 124 Q 454 214 146 174 Z" fill="#334155"/>
+                    
+                    <!-- Auto persecutor dentro del espejo -->
+                    <path d="M 200 150 L 240 115 L 360 120 L 400 155 Z" fill="#090d16"/>
+                    <path d="M 245 120 L 265 135 L 335 135 L 355 122 Z" fill="#64748b"/>
+                    <circle cx="285" cy="128" r="8" fill="#000"/>
+                    <circle cx="230" cy="148" r="9" fill="#fef08a"/>
+                    <circle cx="370" cy="151" r="9" fill="#fef08a"/>
+                    <rect x="255" y="145" width="90" height="10" fill="#1e293b"/>
+                </g>
+                <path d="M 170 380 L 430 365" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+
+            <!-- Capas de Censura Progresiva -->
+            <div class="censorship-layer" id="censorshipLayer"></div>
+            <div class="stamp-censored" id="stampCensored">CENSURADO</div>
+        </div>
+
         <div class="artwork-caption">
-            <strong>Obra de portada:</strong> <em>Paisaje / Serie de los retrovisores</em> (1975). Acrílico sobre tela. Diana Dowek.<br>
-            <small>La mirada sobre el acoso político y la inminencia de la persecución.</small>
+            <strong>Obra de portada:</strong> <em>Paisaje / Serie de los retrovisores</em> (1975). Acrílico sobre tela por Diana Dowek.<br>
+            <span id="censorshipStatus" style="color: var(--accent-gold);">Estado de la Obra: Integridad preservada.</span>
         </div>
     </div>
 
@@ -282,7 +354,7 @@
         <div class="progress-fill" id="progressFill"></div>
     </div>
 
-    <!-- JUEGO: PASO A PASO -->
+    <!-- PASOS DEL JUEGO ORIGINAL -->
     <div id="gameContent">
 
         <!-- Inicio -->
@@ -348,7 +420,6 @@
             <div class="result-screen">
                 <div id="resultContent"></div>
 
-                <!-- Preguntas de Reflexión Pedagógica -->
                 <div class="reflection-box">
                     <h4>💡 Preguntas de Reflexión para el Aula:</h4>
                     <ul>
@@ -371,11 +442,9 @@
     let currentStep = 0;
     const totalQuestions = 6;
 
-    // Generador de Sonido de Suspenso con Web Audio API
+    // Web Audio API para música de suspenso
     let audioCtx = null;
-    let osc1 = null;
-    let osc2 = null;
-    let gainNode = null;
+    let osc1 = null, osc2 = null, gainNode = null;
     let isPlayingAudio = false;
     let pulseInterval = null;
 
@@ -395,18 +464,16 @@
     function startSuspenseSound() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Oscilador 1: Tono de bajo muy profundo (Drone)
         osc1 = audioCtx.createOscillator();
         osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(55, audioCtx.currentTime); // Nota La grave (A1)
+        osc1.frequency.setValueAtTime(55, audioCtx.currentTime);
 
-        // Oscilador 2: Tono desafinado que genera batimiento sutil (Tensión)
         osc2 = audioCtx.createOscillator();
         osc2.type = 'sine';
         osc2.frequency.setValueAtTime(58.5, audioCtx.currentTime); 
 
         gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Volumen suave y atmosférico
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
 
         osc1.connect(gainNode);
         osc2.connect(gainNode);
@@ -415,7 +482,6 @@
         osc1.start();
         osc2.start();
 
-        // Pulso oscilante que simula latidos de tensión
         let tensionHigh = false;
         pulseInterval = setInterval(() => {
             if (gainNode && audioCtx) {
@@ -430,16 +496,36 @@
         if (osc1) { osc1.stop(); osc1.disconnect(); }
         if (osc2) { osc2.stop(); osc2.disconnect(); }
         if (audioCtx) audioCtx.close();
-        osc1 = null;
-        osc2 = null;
-        audioCtx = null;
+        osc1 = null; osc2 = null; audioCtx = null;
+    }
+
+    function updateCensorship() {
+        const layer = document.getElementById('censorshipLayer');
+        const stamp = document.getElementById('stampCensored');
+        const status = document.getElementById('censorshipStatus');
+
+        layer.className = 'censorship-layer';
+
+        if (scoreB === 1 || scoreB === 2) {
+            layer.classList.add('level-1');
+            status.innerHTML = `<span style="color:#f59e0b;">⚠️ Alerta: Censores vigilando la muestra.</span>`;
+        } else if (scoreB === 3 || scoreB === 4) {
+            layer.classList.add('level-2');
+            status.innerHTML = `<span style="color:#ef4444;">🚨 Peligro: Obra parcialmente intervenida por las autoridades.</span>`;
+        } else if (scoreB >= 5) {
+            layer.classList.add('level-3');
+            stamp.style.display = 'block';
+            status.innerHTML = `<span style="color:#dc2626;">⛔ CLAUSURADA: La obra fue censurada por completo.</span>`;
+        } else {
+            stamp.style.display = 'none';
+            status.innerHTML = `<span style="color:#16a34a;">Integridad preservada: La obra circula mediante la metáfora.</span>`;
+        }
     }
 
     function updateProgress() {
         const fill = document.getElementById('progressFill');
         if (currentStep > 0 && currentStep <= totalQuestions) {
-            const percentage = (currentStep / totalQuestions) * 100;
-            fill.style.width = percentage + '%';
+            fill.style.width = ((currentStep / totalQuestions) * 100) + '%';
         } else if (currentStep === 0) {
             fill.style.width = '0%';
         } else {
@@ -458,6 +544,8 @@
         if (choice === 'A') scoreA++;
         if (choice === 'B') scoreB++;
 
+        updateCensorship();
+
         if (currentStep < totalQuestions) {
             nextStep(currentStep + 1);
         } else {
@@ -474,7 +562,6 @@
         const resultContent = document.getElementById('resultContent');
 
         if (scoreA >= scoreB) {
-            // DESENLACE A: Exposición / Resistencia
             resultContent.innerHTML = `
                 <div class="result-title exposicion">🟢 DESENLACE: Muestra Lograda (La Metáfora Resistente)</div>
                 <div class="result-desc">
@@ -484,13 +571,14 @@
                 </div>
             `;
         } else {
-            // DESENLACE B: Censura
+            // Se activan las luces de policía
+            document.body.classList.add('police-lights');
             resultContent.innerHTML = `
-                <div class="result-title censura">🔴 DESENLACE: Muestra Clausurada (El Choque Directo)</div>
+                <div class="result-title censura">🚨 DESENLACE: Muestra Clausurada (Arresto y Censura Total)</div>
                 <div class="result-desc">
                     <p><strong>Resultado:</strong> Poco antes de abrir las puertas al público, agentes e inspectores irrumpen en el espacio cultural al ser alertados del contenido explícito de las obras.</p>
-                    <p>Descuelgan las piezas con violencia, incautan los panfletos y colocan fajas de clausura en la puerta de la galería.</p>
-                    <p><strong>Impacto:</strong> La obra es confiscada y tu nombre queda marcado en las listas proscriptas de galerías y salones oficiales, perdiendo la oportunidad de entablar un diálogo directo con la sociedad.</p>
+                    <p>Descuelgan las piezas con violencia, incautan los panfletos y colocan fajas de clausura en la puerta de la galería. Fuiste interceptada por desacato al orden público.</p>
+                    <p><strong>Impacto:</strong> La obra fue completamente tapada e incautada. Tu nombre queda marcado en las listas proscriptas, perdiendo la posibilidad de entablar un diálogo directo con la sociedad.</p>
                 </div>
             `;
         }
@@ -499,6 +587,8 @@
     function resetGame() {
         scoreA = 0;
         scoreB = 0;
+        document.body.classList.remove('police-lights');
+        updateCensorship();
         nextStep(0);
     }
 </script>
